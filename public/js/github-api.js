@@ -18,28 +18,79 @@ async function analyzeRepository(owner, repo, excludePatterns = [], maxFileSizeK
             return await directGitHubApiCall(owner, repo, excludePatterns, maxFileSizeKB);
         } else {
             // Call our backend API when running from a server
-            const response = await fetch(`/api/github/analyze?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    excludePatterns,
-                    maxFileSizeKB
-                })
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to analyze repository');
+            try {
+                const response = await fetch(`/api/github/analyze?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        excludePatterns,
+                        maxFileSizeKB
+                    })
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 405) {
+                        // If Method Not Allowed, try with GET as fallback
+                        console.log('POST method not allowed, trying GET instead...');
+                        return await fetchWithGet(owner, repo, excludePatterns, maxFileSizeKB);
+                    }
+                    const errorText = await response.text();
+                    let errorMessage;
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        errorMessage = errorData.message || 'Failed to analyze repository';
+                    } catch (e) {
+                        errorMessage = `Failed to analyze repository: ${errorText.substring(0, 100)}...`;
+                    }
+                    throw new Error(errorMessage);
+                }
+                
+                return await response.json();
+            } catch (serverError) {
+                // Fall back to direct GitHub API if the server fails
+                console.log('Server API failed, falling back to direct GitHub API:', serverError.message);
+                return await directGitHubApiCall(owner, repo, excludePatterns, maxFileSizeKB);
             }
-            
-            return await response.json();
         }
     } catch (error) {
         console.error('Error analyzing repository:', error);
         throw error;
     }
+}
+
+/**
+ * Fallback method to use GET requests for the server API
+ */
+async function fetchWithGet(owner, repo, excludePatterns, maxFileSizeKB) {
+    // Convert exclude patterns to query string
+    const excludeParam = excludePatterns.length > 0 ? 
+        `&exclude=${encodeURIComponent(excludePatterns.join(','))}` : '';
+    
+    const response = await fetch(
+        `/api/github/analyze?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&maxFileSize=${maxFileSizeKB}${excludeParam}`, 
+        {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        }
+    );
+    
+    if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage;
+        try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.message || 'Failed to analyze repository';
+        } catch (e) {
+            errorMessage = `Failed to analyze repository: ${errorText.substring(0, 100)}...`;
+        }
+        throw new Error(errorMessage);
+    }
+    
+    return await response.json();
 }
 
 /**
