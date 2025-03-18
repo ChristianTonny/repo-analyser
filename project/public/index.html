@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repository Analyzer</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Mode Notification -->
+        <div id="modeAlert" class="alert alert-info mb-4 d-none">
+            <span id="modeMessage"></span>
+            <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <h1 class="text-center mb-4">GitHub Repository Analyzer</h1>
+        
+        <!-- Repository Input Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5><i class="fas fa-code-branch me-2"></i>Repository Input</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="repoUrl" class="form-label">GitHub Repository URL</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="repoUrl" 
+                               placeholder="https://github.com/user/repo">
+                        <button class="btn btn-primary" id="analyzeBtn">
+                            <i class="fas fa-search me-2"></i>Analyze
+                        </button>
+                    </div>
+                    <div class="form-text">Enter a public GitHub repository URL or try one of our examples below.</div>
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        You can also replace 'hub' with 'ingest' in any GitHub URL
+                    </div>
+                </div>
+                
+                <!-- Example Repositories -->
+                <div class="mb-3">
+                    <label class="form-label">Example Repositories:</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-secondary btn-sm example-repo" 
+                                data-repo="https://github.com/tiangolo/fastapi">
+                            <i class="fas fa-bolt me-1"></i>FastAPI
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm example-repo" 
+                                data-repo="https://github.com/pallets/flask">
+                            <i class="fas fa-flask me-1"></i>Flask
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm example-repo" 
+                                data-repo="https://github.com/excalidraw/excalidraw">
+                            <i class="fas fa-pen me-1"></i>Excalidraw
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm example-repo" 
+                                data-repo="https://github.com/apilytics/apilytics">
+                            <i class="fas fa-chart-line me-1"></i>ApiAnalytics
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filtering Options -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5><i class="fas fa-filter me-2"></i>Filtering Options</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="excludePatterns" class="form-label">Exclude Patterns</label>
+                        <input type="text" class="form-control" id="excludePatterns" 
+                               placeholder="*.md, *.json, node_modules/">
+                        <div class="form-text">Comma-separated list of patterns to exclude (e.g., *.md, src/)</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="maxFileSize" class="form-label">Maximum File Size: <span id="fileSizeValue">50</span>KB</label>
+                        <input type="range" class="form-range" id="maxFileSize" min="5" max="500" step="5" value="50">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Rate Limit Warning -->
+        <div id="rateLimitAlert" class="alert alert-warning d-none">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Warning:</strong> GitHub API rate limit approaching. <span id="requestsRemaining"></span> requests remaining.
+        </div>
+        
+        <!-- Results Section - Redesigned for better structure -->
+        <div id="resultsSection" class="card mb-4 d-none">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-list-alt me-2"></i>Repository Digest</h5>
+                <div>
+                    <button id="downloadBtn" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-download me-1"></i>Download
+                    </button>
+                    <button id="copyBtn" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-copy me-1"></i>Copy to Clipboard
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loadingIndicator" class="text-center my-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Analyzing repository... This may take a moment.</p>
+            </div>
+            
+            <!-- New structured digest display -->
+            <div id="structuredDigest" class="d-none">
+                <!-- Repository Overview Section -->
+                <div class="card-body border-bottom">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 id="repoName" class="mb-2"></h4>
+                            <p id="repoDescription" class="text-muted"></p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex justify-content-end">
+                                <div class="text-center me-3">
+                                    <div id="repoStars" class="fs-4 fw-bold"></div>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-star text-warning"></i> Stars
+                                    </div>
+                                </div>
+                                <div class="text-center me-3">
+                                    <div id="repoForks" class="fs-4 fw-bold"></div>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-code-branch"></i> Forks
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <div id="repoFiles" class="fs-4 fw-bold"></div>
+                                    <div class="small text-muted">
+                                        <i class="fas fa-file"></i> Files
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Directory Structure Section -->
+                <div class="card-body border-bottom">
+                    <h5><i class="fas fa-folder me-2"></i>Directory Structure</h5>
+                    <div id="directoryStructure" class="bg-light p-3 rounded"></div>
+                </div>
+                
+                <!-- Files Content Section -->
+                <div class="card-body">
+                    <h5><i class="fas fa-file-code me-2"></i>Files Content</h5>
+                    <div id="filesContent"></div>
+                </div>
+            </div>
+            
+            <!-- Original raw text output (hidden by default) -->
+            <pre id="repoDigest" class="bg-light p-3 rounded d-none"></pre>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="js/github-api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

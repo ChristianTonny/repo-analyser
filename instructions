@@ -1,0 +1,118 @@
+
+Develop a **web application** that allows users to analyze a GitHub repository and generate a **text-based digest** of its codebase. The tool will be useful for summarizing repositories for AI models, making it easier to extract structured insights.  
+
+---
+
+#### **Core Functionalities**  
+1. **GitHub Repository Input:**  
+   - Users enter a GitHub repository URL.  
+   - Option to replace 'hub' with 'ingest' in the URL for easier access.  
+
+2. **File Selection & Filtering:**  
+   - Users can **exclude specific file types or directories** (e.g., `*.md, src/`).  
+   - A **slider control** lets users set a maximum file size for inclusion (e.g., files under 50KB).  
+
+3. **Example Repositories:**  
+   - Provide quick-access buttons for commonly used repositories like **FastAPI, Flask, Excalidraw, ApiAnalytics, etc.**  
+
+4. **Text-Based Code Digest Generation:**  
+   - Extracts and summarizes key sections of the repository **using GitHub’s API**.  
+   - Formats the output for **AI consumption** (e.g., removing unnecessary metadata, formatting code snippets).  
+   - Presents the digest in a **structured, readable format**.  
+
+5. **UI/UX Considerations:**  
+   - **Minimalistic, developer-friendly design.**  
+   - Responsive layout using **Bootstrap or Tailwind CSS**.  
+   - Clear feedback mechanisms (e.g., loading states, error handling).  
+
+---
+
+#### **Technical Requirements**  
+✅ **Must use GitHub's API** to fetch repository metadata, file structures, and contents.  
+✅ **No need for a database** for now; just use JavaScript for handling data processing and storage in memory or localStorage.  
+✅ **Frontend:** HTML, CSS, JavaScript (Vanilla JS).  
+✅ **Backend:** Node.js (Express.js) for API communication with GitHub.  
+✅ **GitHub API Integration:**  
+  - Fetch repository metadata, file structures, and contents.  
+  - Implement **OAuth authentication** (optional but recommended for private repos).  
+✅ **Data Processing:** Efficient parsing and filtering of repository files.  
+✅ **Caching:** Implement **caching strategies** to optimize API requests and avoid rate limits.  
+
+---
+
+#### **Development Steps**  
+1. **Project Setup**  
+   - Initialize the project with frontend and backend components.  
+   - Set up a **GitHub OAuth App** (if authentication is needed).  
+
+2. **Frontend Development**  
+   - Create an **input field** for repository URLs.  
+   - Implement **file filtering UI** (dropdown for exclusions, slider for file size).  
+   - Design the **output area** where the repository digest will be displayed.  
+
+3. **GitHub API Integration**  
+   - Fetch and process repository data efficiently using **GitHub's API**.  
+   - Handle authentication and API rate limits properly.  
+
+4. **Data Processing & Summarization**  
+   - Extract and format relevant content from repository files **without using a database** (pure JavaScript processing).  
+   - Implement a lightweight parser to remove unnecessary metadata.  
+
+5. **Testing & Optimization**  
+   - Ensure smooth API interactions and caching.  
+   - Optimize UI/UX for **developer-friendly experience**.  
+
+---
+
+#### **Desired Output & Considerations**  
+- **Clean and structured repository digests.**  
+- **Scalability**: Should handle large repositories efficiently.  
+- **Security**: Secure handling of OAuth tokens if authentication is used.  
+- **Performance**: Minimize API calls and avoid GitHub rate limits.  
+
+---
+
+**Deliverables:**  
+- A fully functional **web application** with a clean UI.  
+- A **well-documented codebase** for future enhancements.  
+- Clear **error handling** and **usage instructions**.  
+
+---
+
+
+### Technical Requirements:
+- Build using HTML, CSS, and JavaScript for the frontend
+- Implement a js backend for GitHub API communication
+- Use Chart.js for data visualization components
+- Implement GitHub OAuth for user authentication
+- Create a responsive design 
+- Store user preferences in localStorage
+
+### Development Steps:
+1. Set up the basic project structure
+2. Register a new OAuth application on GitHub
+3. Implement the authentication flow with GitHub OAuth
+4. Create API endpoints to fetch repository data including:
+   - Basic repository information
+   - Contributor statistics
+   - Commit activity
+   - Issue and PR metrics
+5. Build data visualization components for:
+   - Commit frequency
+   - Contributor distribution
+   - Issue resolution time
+   - Programming language breakdown
+6. Create a repository search/selection interface
+7. Implement a dashboard layout with key metrics
+8. Add comparison features for multiple repositories
+9. Design a clean, developer-friendly UI
+10. Add export functionality for reports
+
+### Key Considerations:
+- Handle GitHub API rate limits carefully
+- Implement proper caching for expensive API calls
+- Ensure secure handling of OAuth tokens
+- Create intuitive visualizations that provide actionable insights
+- Use incremental loading for large repositories
+
+
