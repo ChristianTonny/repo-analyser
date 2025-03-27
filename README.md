@@ -1,5 +1,17 @@
 # GitHub Repository Analyzer
 
+A tool for analyzing GitHub repositories and generating insights.
+
+## Live Demo
+
+Check out the live application: [Repository Analyzer](https://www.christonny.tech/)
+
+## Video Demo
+
+Watch the demo video to see the tool in action:
+
+[![Repository Analyzer Demo](https://img.youtube.com/vi/hGMr6gHtSzg/0.jpg)](https://youtu.be/hGMr6gHtSzg)
+
 A web application that allows users to analyze a GitHub repository and generate a text-based digest of its codebase. This tool is useful for summarizing repositories for AI models, making it easier to extract structured insights.
 
 ## Features
@@ -58,7 +70,6 @@ project/
 ### Frontend
 
 - Pure HTML, CSS, and JavaScript (no frameworks)
-- Bootstrap for styling
 - Responsive design for various screen sizes
 
 ### Backend
